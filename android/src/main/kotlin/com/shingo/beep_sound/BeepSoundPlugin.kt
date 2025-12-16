@@ -17,6 +17,8 @@ class BeepSoundPlugin : FlutterPlugin, MethodCallHandler {
     /// when the Flutter Engine is detached from the Activity
     private lateinit var channel: MethodChannel
     private var handler: Handler = Handler()
+    private var toneGeneratorMap: MutableMap<String, ToneGenerator> = mutableMapOf()
+
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "system_beep_player")
@@ -38,14 +40,18 @@ class BeepSoundPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        toneGeneratorMap.forEach { (_, toneGenerator) ->
+            toneGenerator.release()
+        }
+        toneGeneratorMap.clear()
     }
 
     private fun playSysSound(soundId: Int, volume: Int, durationMs: Int, streamType: Int) {
-        val toneGenerator = ToneGenerator(streamType, volume)
-        toneGenerator.startTone(soundId, durationMs)
-        handler.postDelayed({
-            toneGenerator.release()
-        }, durationMs.toLong() + 100);
+        val key = "$soundId-$volume-$streamType"
+        if (!toneGeneratorMap.containsKey(key)) {
+            toneGeneratorMap[key] = ToneGenerator(streamType, volume)
+        }
+        toneGeneratorMap[key]?.startTone(soundId, durationMs)
     }
 
 
