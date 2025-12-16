@@ -1,0 +1,26 @@
+name: system_beep_player
+description: "A very lite module to play system sounds and beep for flutter apps (no sound files)"
+version: 0.0.3
+homepage: https://github.com/shingohu/system_beep_player
+
+environment:
+  sdk: ^3.7.2
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.1.8
+
+
+
+flutter:
+
+  plugin:
+    platforms:
+      android:
+        package: com.shingo.beep_sound
+        pluginClass: BeepSoundPlugin
+      ios:
+        pluginClass: BeepSoundPlugin
+
